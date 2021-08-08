@@ -1,5 +1,4 @@
 #%%
-from common import square,as_array,add
 import weakref
 import numpy as np
 
@@ -101,6 +100,11 @@ class Function:
 class Config:
     enable_backprop = True
 
+def as_array(x):
+    if np.isscalar(x):
+        return np.array(x)
+    return x
+
 
 #%%
 x= Variable(np.array([[1,2,3],[4,5,6]]))
@@ -110,4 +114,3 @@ print(len(x))
 # %%
 print(x)
 
-# %%
