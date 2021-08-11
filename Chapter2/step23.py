@@ -12,4 +12,3 @@ y.backward()
 
 print(y)
 print(x.grad)
-# %%
