@@ -90,6 +90,9 @@ class Variable:
             if not retain_grad:
                 for y in f.outputs:
                     y().grad = None
+    
+    def cleargrad(self):
+        self.grad = None
 
 class Function:
     def __call__(self, *inputs):
