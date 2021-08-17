@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 
 class Variable:
@@ -17,7 +18,7 @@ class Variable:
             x.grad = f.backward(y.grad)
 
             if x.creator is not None:
-                funcs.appen(x.creator)
+                funcs.append(x.creator)
 
 class Function:
     def  __call__(self, input):
@@ -48,3 +49,20 @@ class Exp(Function):
         x = self.input.data
         gx = np.exp(x)*gy
         return gx
+
+# %%
+A = Square()
+B = Exp()
+C = Square()
+
+x = Variable(np.array(0.5))
+
+a = A(x)
+b = B(a)
+y = C(b)
+
+y.grad = np.array(1.0)
+
+y.backward()
+print(x.grad)
+# %%

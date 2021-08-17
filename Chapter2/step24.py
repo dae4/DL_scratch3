@@ -40,5 +40,4 @@ z = goldstein(x,y)
 z.backward()
 print(x.grad,y.grad)
 
-
 # %%

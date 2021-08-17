@@ -22,7 +22,7 @@ def f(x):
     C = Square()
     return C(B(A(x)))
 
-X = Variable(np.array(0.5))
+x = Variable(np.array(0.5))
 dy = numerical_diff(f,x)
 print(dy)
 # %%
