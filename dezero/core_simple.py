@@ -2,11 +2,10 @@ import weakref
 import numpy as np
 import contextlib
 
-@contextlib.contextmanager
-
 class Config:
     enable_backprop = True
 
+@contextlib.contextmanager
 def using_config(name,value):
     old_value = getattr(Config,name)
     setattr(Config,name,value)
