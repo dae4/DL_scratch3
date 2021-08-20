@@ -1,6 +1,7 @@
 import weakref
 import numpy as np
 import contextlib
+import dezero
 
 class Config:
     enable_backprop = True
@@ -42,6 +43,9 @@ class Variable:
     @property
     def dtypes(self):
         return self.data.dtype
+    @property
+    def T(self):
+        return dezero.functions.transpose(self)
 
     def __len__(self):
         return len(self.data)
@@ -55,6 +59,17 @@ class Variable:
     def set_creator(self, func):
         self.creator = func
         self.generation = func.generation + 1
+    
+    def cleargrad(self):
+        self.grad = None
+
+    def reshape(self,*shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple,list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self,shape)
+
+    def transpose(self):
+        return dezero.functions.transpose(self)
 
     def backward(self,retain_grad=False, create_graph = False):
         if self.grad is None:
@@ -93,9 +108,6 @@ class Variable:
                 for y in f.outputs:
                     y().grad = None
     
-    def cleargrad(self):
-        self.grad = None
-
 class Function:
     def __call__(self, *inputs):
         inputs = [as_variable(x) for x in inputs]
@@ -119,8 +131,6 @@ class Function:
 
     def backward(self, gys):
         raise NotImplementedError()
-
-
 
 
 def as_variable(obj):
