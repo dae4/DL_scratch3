@@ -30,7 +30,7 @@ for i in range(iters):
 
     x0.cleargrad()
     x1.cleargrad()
-    y.backwad()
+    y.backward()
 
     x0.data-=lr*x0.grad
     x1.data-=lr*x1.grad
