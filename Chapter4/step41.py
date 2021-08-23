@@ -19,3 +19,10 @@ print(c)
 
 
 # %%
+x = Variable(np.random.rand(2,3))
+W = Variable(np.random.rand(3,4))
+y = F.matmul(x,W)
+y.backward()
+print(x.grad.shape)
+print(W.grad.shape)
+# %%
