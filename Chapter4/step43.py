@@ -43,3 +43,12 @@ for i in range(iters):
     if i % 1000 == 0:
         print(loss)
 # %%
+import matplotlib.pyplot as plt
+plt.scatter(x, y, s=10)
+plt.xlabel('x')
+plt.ylabel('y')
+t = np.arange(0, 1, .01)[:, np.newaxis]
+y_pred = predict(t)
+plt.plot(t, y_pred.data, color='r')
+plt.show()
+# %%
