@@ -25,7 +25,12 @@ class Layer:
 
     def params(self):
         for name in self._params:
-            yield self.__dict__[name]
+            obj = self.__dict__[name]
+            if isinstance(obj, Layer):
+                yield self.__dict__[name]
+            else:
+                yield obj
+            
 
     def cleargrads(self):
         for param in self.params():
@@ -59,3 +64,5 @@ class Linear(Layer):
         
         y = F.linear(x,self.W,self.b)
         return y
+
+    
