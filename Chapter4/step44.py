@@ -43,8 +43,10 @@ for i in range(iters):
 
     for l in [l1,l2]:
         for p in l.params():
+            print(p.data)
             p.data -= lr * p.grad.data
     
     if i % 1000 == 0 :
         print(loss)
 # %%
+
