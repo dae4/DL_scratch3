@@ -1,4 +1,5 @@
 import math
+from dezero import cuda
 pil_available = True
 try:
     from PIL import Image
