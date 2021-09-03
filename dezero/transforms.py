@@ -8,6 +8,7 @@ from dezero.utils import pair
 
 class Compose:
     """Compose several transforms.
+
     Args:
         transforms (list): list of transforms
     """
@@ -41,6 +42,7 @@ class Convert:
 
 class Resize:
     """Resize the input PIL image to the given size.
+
     Args:
         size (int or (int, int)): Desired output size
         mode (int): Desired interpolation.
@@ -55,6 +57,7 @@ class Resize:
 
 class CenterCrop:
     """Resize the input PIL image to the given size.
+
     Args:
         size (int or (int, int)): Desired output size.
         mode (int): Desired interpolation.
@@ -105,6 +108,7 @@ class RandomHorizontalFlip:
 # =============================================================================
 class Normalize:
     """Normalize a NumPy array with mean and standard deviation.
+
     Args:
         mean (float or sequence): mean for all values or sequence of means for
          each channel.

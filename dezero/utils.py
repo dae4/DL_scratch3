@@ -1,11 +1,15 @@
-#%%
-import os 
+import os
 import subprocess
+import urllib.request
 import numpy as np
 from dezero import as_variable
 from dezero import Variable
-import urllib.request
+from dezero import cuda
 
+
+# =============================================================================
+# Visualize for computational graph
+# =============================================================================
 def _dot_var(v, verbose=False):
     dot_var = '{} [label="{}", color=orange, style=filled]\n'
 
@@ -33,6 +37,22 @@ def _dot_func(f):
 
 
 def get_dot_graph(output, verbose=True):
+    """Generates a graphviz DOT text of a computational graph.
+
+    Build a graph of functions and variables backward-reachable from the
+    output. To visualize a graphviz DOT text, you need the dot binary from the
+    graphviz package (www.graphviz.org).
+
+    Args:
+        output (dezero.Variable): Output variable from which the graph is
+            constructed.
+        verbose (bool): If True the dot graph contains additional information
+            such as shapes and dtypes.
+
+    Returns:
+        str: A graphviz DOT text consisting of nodes and edges that are
+            backward-reachable from the output
+    """
     txt = ''
     funcs = []
     seen_set = set()
@@ -73,11 +93,25 @@ def plot_dot_graph(output, verbose=True, to_file='graph.png'):
     cmd = 'dot {} -T {} -o {}'.format(graph_path, extension, to_file)
     subprocess.run(cmd, shell=True)
 
+    # Return the image as a Jupyter Image object, to be displayed in-line.
+    try:
+        from IPython import display
+        return display.Image(filename=to_file)
+    except:
+        pass
+
+
+
+# =============================================================================
+# Utility functions for numpy (numpy magic)
+# =============================================================================
 def sum_to(x, shape):
     """Sum elements along axes to output an array of a given shape.
+
     Args:
         x (ndarray): Input array.
         shape:
+
     Returns:
         ndarray: Output array of the shape.
     """
@@ -94,12 +128,14 @@ def sum_to(x, shape):
 
 def reshape_sum_backward(gy, x_shape, axis, keepdims):
     """Reshape gradient appropriately for dezero.functions.sum's backward.
+
     Args:
         gy (dezero.Variable): Gradient variable from the output by backprop.
         x_shape (tuple): Shape used at sum function's forward.
         axis (None or int or tuple of ints): Axis used at sum function's
             forward.
         keepdims (bool): Keepdims used at sum function's forward.
+
     Returns:
         dezero.Variable: Gradient variable which is reshaped appropriately
     """
@@ -121,14 +157,17 @@ def reshape_sum_backward(gy, x_shape, axis, keepdims):
     gy = gy.reshape(shape)  # reshape
     return gy
 
+
 def logsumexp(x, axis=1):
+    xp = cuda.get_array_module(x)
     m = x.max(axis=axis, keepdims=True)
     y = x - m
-    np.exp(y, out=y)
+    xp.exp(y, out=y)
     s = y.sum(axis=axis, keepdims=True)
-    np.log(s, out=s)
+    xp.log(s, out=s)
     m += s
     return m
+
 
 def max_backward_shape(x, axis):
     if axis is None:
@@ -147,10 +186,12 @@ def max_backward_shape(x, axis):
 # =============================================================================
 def gradient_check(f, x, *args, rtol=1e-4, atol=1e-5, **kwargs):
     """Test backward procedure of a given function.
+
     This automatically checks the backward-process of a given function. For
     checking the correctness, this function compares gradients by
     backprop and ones by numerical derivation. If the result is within a
     tolerance this function return True, otherwise False.
+
     Args:
         f (callable): A function which gets `Variable`s and returns `Variable`s.
         x (`ndarray` or `dezero.Variable`): A traget `Variable` for computing
@@ -161,6 +202,7 @@ def gradient_check(f, x, *args, rtol=1e-4, atol=1e-5, **kwargs):
         atol (float): The absolute tolerance parameter.
         **kwargs: If `f` needs keyword variables, you can specify with this
             argument.
+
     Returns:
         bool: Return True if the result is within a tolerance, otherwise False.
     """
@@ -191,6 +233,7 @@ def gradient_check(f, x, *args, rtol=1e-4, atol=1e-5, **kwargs):
 
 def numerical_grad(f, x, *args, **kwargs):
     """Computes numerical gradient by finite differences.
+
     Args:
         f (callable): A function which gets `Variable`s and returns `Variable`s.
         x (`ndarray` or `dezero.Variable`): A target `Variable` for computing
@@ -199,14 +242,19 @@ def numerical_grad(f, x, *args, **kwargs):
             argument.
         **kwargs: If `f` needs keyword variables, you can specify with this
             argument.
+
     Returns:
         `ndarray`: Gradient.
     """
     eps = 1e-4
 
     x = x.data if isinstance(x, Variable) else x
-    np_x = np.as_numpy(x)
-    grad = np.zeros_like(x)
+    xp = cuda.get_array_module(x)
+    if xp is not np:
+        np_x = cuda.as_numpy(x)
+    else:
+        np_x = x
+    grad = xp.zeros_like(x)
 
     it = np.nditer(np_x, flags=['multi_index'], op_flags=['readwrite'])
     while not it.finished:
@@ -235,25 +283,30 @@ def numerical_grad(f, x, *args, **kwargs):
 
 def array_equal(a, b):
     """True if two arrays have the same shape and elements, False otherwise.
+
     Args:
         a, b (numpy.ndarray or cupy.ndarray or dezero.Variable): input arrays
             to compare
+
     Returns:
         bool: True if the two arrays are equal.
     """
     a = a.data if isinstance(a, Variable) else a
     b = b.data if isinstance(b, Variable) else b
+    a, b = cuda.as_numpy(a), cuda.as_numpy(b)
     return np.array_equal(a, b)
 
 
 def array_allclose(a, b, rtol=1e-4, atol=1e-5):
     """Returns True if two arrays(or variables) are element-wise equal within a
     tolerance.
+
     Args:
         a, b (numpy.ndarray or cupy.ndarray or dezero.Variable): input arrays
             to compare
         rtol (float): The relative tolerance parameter.
         atol (float): The absolute tolerance parameter.
+
     Returns:
         bool: True if the two arrays are equal within the given tolerance,
             False otherwise.
@@ -284,11 +337,14 @@ cache_dir = os.path.join(os.path.expanduser('~'), '.dezero')
 
 def get_file(url, file_name=None):
     """Download a file from the `url` if it is not in the cache.
+
     The file at the `url` is downloaded to the `~/.dezero`.
+
     Args:
         url (str): URL of the file.
         file_name (str): Name of the file. It `None` is specified the original
             file name is used.
+
     Returns:
         str: Absolute path to the saved file.
     """

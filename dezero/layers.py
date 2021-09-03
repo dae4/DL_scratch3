@@ -121,6 +121,7 @@ class Conv2d(Layer):
     def __init__(self, out_channels, kernel_size, stride=1,
                  pad=0, nobias=False, dtype=np.float32, in_channels=None):
         """Two-dimensional convolutional layer.
+
         Args:
             out_channels (int): Number of channels of output arrays.
             kernel_size (int or (int, int)): Size of filters.
@@ -169,6 +170,7 @@ class Deconv2d(Layer):
     def __init__(self, out_channels, kernel_size, stride=1,
                  pad=0, nobias=False, dtype=np.float32, in_channels=None):
         """Two-dimensional deconvolutional (transposed convolution)layer.
+
         Args:
             out_channels (int): Number of channels of output arrays.
             kernel_size (int or (int, int)): Size of filters.
@@ -219,11 +221,13 @@ class Deconv2d(Layer):
 class RNN(Layer):
     def __init__(self, hidden_size, in_size=None):
         """An Elman RNN with tanh.
+
         Args:
             hidden_size (int): The number of features in the hidden state.
             in_size (int): The number of features in the input. If unspecified
             or `None`, parameter initialization will be deferred until the
             first `__call__(x)` at which time the size will be determined.
+
         """
         super().__init__()
         self.x2h = Linear(hidden_size, in_size=in_size)

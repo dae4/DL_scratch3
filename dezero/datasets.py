@@ -330,12 +330,3 @@ def save_cache_npz(data, label, filename, train=False):
         raise
     print(" Done")
     return filepath
-
-class BigData(Dataset):
-    def __getitem__(index):
-        x = np.load('data/{}.npy'.format(index))
-        t = np.load('label/{}.npy'.format(index))
-        return x,t
-
-    def __len__():
-        return 1000000

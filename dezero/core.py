@@ -206,7 +206,9 @@ class Function:
         raise NotImplementedError()
 
 
-
+# =============================================================================
+# 사칙연산 / 연산자 오버로드
+# =============================================================================
 class Add(Function):
     def forward(self, x0, x1):
         self.x0_shape, self.x1_shape = x0.shape, x1.shape
@@ -340,7 +342,7 @@ def setup_variable():
     Variable.__pow__ = pow
     Variable.__getitem__ = dezero.functions.get_item
 
-    Variable.matmul = dezero.functions.matmul
+    Variable.matmaul = dezero.functions.matmul
     Variable.dot = dezero.functions.matmul
     Variable.max = dezero.functions.max
     Variable.min = dezero.functions.min
