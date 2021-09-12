@@ -23,7 +23,7 @@ import dezero.layers as L
 from dezero import optimizers
 
 max_epoch = 100
-batch_size = 30
+batch_size = 3
 hidden_size = 100
 bptt_length = 30
 
@@ -63,9 +63,3 @@ for epoch in range(max_epoch):
             optimizer.update()
     avg_loss = float(loss.data)/count
     print('| epoch  %d | loss %f' % ( epoch + 1,avg_loss))
-
-# %%
-print(y.shape)
-# %%
-print(t.shape)
-# %%
